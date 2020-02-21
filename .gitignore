@@ -14,4 +14,4 @@ ehthumbs.db
 Thumbs.db
 
 backend/env
-backend/src/database
+backend/src/__pycache__
