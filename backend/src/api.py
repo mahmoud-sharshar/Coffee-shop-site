@@ -10,7 +10,6 @@ from .auth.auth import AuthError, requires_auth
 app = Flask(__name__)
 setup_db(app)
 CORS(app)
-
 '''
 @TODO uncomment the following line to initialize the datbase
 !! NOTE THIS WILL DROP ALL RECORDS AND START YOUR DB FROM SCRATCH
@@ -36,6 +35,9 @@ def get_all_drinks():
     "drinks": short_drinks
     })
 
+@app.route('/login-results')
+def login():
+    return 'accepted'
 '''
 @TODO implement endpoint
     GET /drinks-detail
@@ -60,6 +62,7 @@ def get_drinks_detail():
         it should create a new row in the drinks table
         it should require the 'post:drinks' permission
         it should contain the drink.long() data representation
+        it should contain the title and list of recipe
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the newly created drink
         or appropriate status code indicating reason for failure
 '''
@@ -70,11 +73,12 @@ def add_new_drink():
    if ('title' not in drink_detial) or ('recipe' not in drink_detial):
         abort(400)
    try:
-       new_drink = Drink()
-       new_drink.title = drink_detial['title']
-       new_drink.recipe = drink_detial['recipe']
+       new_drink = Drink(title=drink_detial['title'], recipe=json.dumps(drink_detial['recipe']))
+       print(new_drink.title)
+       print(new_drink.recipe)
        new_drink.insert()
-       return jsonify({"success": True, "drinks": new_drink})
+       print("inserted")
+       return jsonify({"success": True, "drinks": [new_drink.long()]})
    except:
         abort(500)
     
@@ -101,9 +105,10 @@ def edit_drink(drink_id):
         abort(400)
     try:
        drink.title = drink_detial['title']
-       drink.recipe = drink_detial['recipe']
+       drink.recipe = json.dumps(drink_detial['recipe'])
        drink.update()
-       return jsonify({"success": True, "drinks": drink})
+       updated_drink = Drink.query.get(drink_id)
+       return jsonify({"success": True,"drinks": [updated_drink.long()] })
     except:
         abort(500)
 
@@ -125,6 +130,7 @@ def delete_drink(drink_id):
         abort(404)
     try:
         deleted_drink.delete()
+        return jsonify({"success": True, "delete": drink_id})
     except:
         abort(500)
 

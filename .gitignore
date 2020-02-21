@@ -15,3 +15,4 @@ Thumbs.db
 
 backend/env
 backend/src/__pycache__
+backend/node_modules
